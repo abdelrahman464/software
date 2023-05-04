@@ -1,7 +1,5 @@
 const Database = require("../../config/database");
-const ApiError = require("../../utils/apiError");
-const bcrypt = require("bcrypt");
-const generateToken = require("../../utils/generateToken");
+
 
 class User {
   constructor() {
@@ -17,9 +15,9 @@ class User {
     await this.db.connect();
     const sql = "SELECT * FROM users WHERE email = ?";
     const args = [email];
-    const doc = this.db.query(sql, args);
+    const data = this.db.query(sql, args);
 
-    return doc;
+    return data;
   };
 }
 
