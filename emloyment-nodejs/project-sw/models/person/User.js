@@ -1,5 +1,7 @@
 const Database = require("../../config/database");
-
+const generateToken = require("../../utils/generateToken");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 class User {
   constructor() {
@@ -11,12 +13,45 @@ class User {
     });
   }
 
-  login = async (email) => {
+  login = async (user, res) => {
+    const { email, password } = user;
     await this.db.connect();
     const sql = "SELECT * FROM users WHERE email = ?";
     const args = [email];
-    const data = this.db.query(sql, args);
+    const data = await this.db.query(sql, args);
 
+    bcrypt.compare(password, data[0].password, (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Internal server error");
+      }
+      // Passwords match
+      if (result) {
+        const token = generateToken(data[0].id);
+        res.status(200).json({ data: data, token: token });
+      }
+      // Passwords do not match
+      if (!result) {
+        return res.status(401).send("Invalid email or password");
+      }
+    });
+  };
+
+  checkTokenAndRerturnDecoded = async (authorizationHeader) => {
+    // check if token exists, if exist get it
+    const token = authorizationHeader.split(" ")[1];
+    // verify token (no change happens,expired token)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    return decoded;
+  };
+
+  protect = async (authorizationHeader) => {
+    const decoded = await this.checkTokenAndRerturnDecoded(authorizationHeader);
+    //check if user exists
+    await this.db.connect();
+    const sql = "SELECT * FROM users WHERE id = ?";
+    const args = [decoded.userId];
+    const data = await this.db.query(sql, args);
     return data;
   };
 }

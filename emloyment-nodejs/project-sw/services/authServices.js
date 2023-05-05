@@ -1,10 +1,7 @@
 const Applicant = require("../models/person/Applicant");
 const User = require("../models/person/User");
-const generateToken = require("../utils/generateToken");
-const bcrypt = require("bcrypt");
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
-
 //@desc signup
 //@route POST /api/v1/users/auth/signup
 //@access public
@@ -22,21 +19,23 @@ exports.signup = asyncHandler(async (req, res) => {
 exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = new User();
-  const data = await user.login(email);
+  return await user.login({ email, password }, res);
+});
 
-  bcrypt.compare(password, data[0].password, (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Internal server error");
+exports.protect = asyncHandler(async (req, res, next) => {
+  if (!req.headers.authorization) {
+    return next(new ApiError("you are not login,please login first", 401));
+  }
+  if (req.headers.authorization) {
+    if (!req.headers.authorization.startsWith("Bearer")) {
+      return next(new ApiError("you are not login,please login first", 401));
     }
-    // Passwords match
-    if (result) {
-      const token = generateToken(data.id);
-      res.status(200).json({ data: data, token: token });
-    }
-    // Passwords do not match
-    if (!result) {
-      return res.status(401).send("Invalid email or password");
-    }
-  });
+  }
+  const user = new User();
+  const data = await user.protect(req.headers.authorization);
+  if (data.length === 0) {
+    next(new ApiError("user is not available", 404));
+  }
+  req.user = data[0];
+  next();
 });

@@ -12,7 +12,7 @@ exports.createUser = asyncHandler(async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   const created_at = new Date();
   const updated_at = new Date();
-  // update a new user
+
   await admin.createUser({
     name: name,
     email: email,
