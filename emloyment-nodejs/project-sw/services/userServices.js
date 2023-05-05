@@ -33,9 +33,10 @@ exports.getAllUsers = asyncHandler(async (req, res, next) => {
   const admin = new Admin();
   const data = await admin.getAllUsers();
   if (data.length === 0) {
-    return next(new ApiError(`No documents Found`, 404));
+    return next(new ApiError(`No Users Found`, 404));
   }
   res.status(200).json({
+    result: data.length,
     data: data,
   });
 });

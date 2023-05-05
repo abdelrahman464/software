@@ -36,6 +36,7 @@ exports.getAllJobs = asyncHandler(async (req, res, next) => {
     return next(new ApiError(`No Jobs Found`, 404));
   }
   res.status(200).json({
+    result: data.length,
     data: data,
   });
 });
@@ -49,6 +50,7 @@ exports.getAllJobsForAdmin = asyncHandler(async (req, res, next) => {
     return next(new ApiError(`No Jobs Found`, 404));
   }
   res.status(200).json({
+    result: data.length,
     data: data,
   });
 });
