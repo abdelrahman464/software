@@ -19,7 +19,6 @@ class User {
     const sql = "SELECT * FROM users WHERE email = ?";
     const args = [email];
     const data = await this.db.query(sql, args);
-
     bcrypt.compare(password, data[0].password, (err, result) => {
       if (err) {
         console.error(err);

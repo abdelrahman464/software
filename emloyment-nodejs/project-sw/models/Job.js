@@ -34,7 +34,7 @@ class JobManager {
       created_at,
       updated_at,
     ];
-    this.db.query(sql, args);
+    await this.db.query(sql, args);
     return true;
   };
 
@@ -47,7 +47,7 @@ class JobManager {
      LEFT JOIN qualifications 
     on qualifications.job_id = jobs.id 
      WHERE jobs.maxCandidateNumber > jobs.num_applicant`;
-    const data = this.db.query(sql);
+    const data = await this.db.query(sql);
     return data;
   };
 
@@ -59,21 +59,21 @@ class JobManager {
      FROM jobs
     LEFT JOIN qualifications 
     on qualifications.job_id = jobs.id`;
-    const data = this.db.query(sql);
+    const data = await this.db.query(sql);
     return data;
   };
 
   getJob = async (id) => {
     await this.db.connect();
     const sql = `SELECT jobs.id,jobs.position,jobs.requirements,jobs.salary,
-    jobs.description as job_description,
+    jobs.description as job_description,jobs.num_applicant,
     qualifications.description as qualification_description
      FROM jobs
      LEFT JOIN qualifications 
     on qualifications.job_id = jobs.id 
     WHERE jobs.id = ?`;
     const args = [id];
-    const data = this.db.query(sql, args);
+    const data = await this.db.query(sql, args);
     return data;
   };
 
@@ -98,7 +98,7 @@ class JobManager {
       updated_at,
       id,
     ];
-    const data = this.db.query(sql, args);
+    const data = await this.db.query(sql, args);
     return data;
   };
 
@@ -106,7 +106,16 @@ class JobManager {
     await this.db.connect();
     const sql = "DELETE FROM Jobs WHERE id = ?";
     const args = [id];
-    const data = this.db.query(sql, args);
+    const data = await this.db.query(sql, args);
+    return data;
+  };
+
+  IncreamentNumApplicantByOne = async (id, num_applicant) => {
+    await this.db.connect();
+    const plusNum_applicantByOne = num_applicant + 1;
+    const sql = `UPDATE jobs SET num_applicant = ? WHERE id = ?`;
+    const args = [plusNum_applicantByOne, id];
+    const data = await this.db.query(sql, args);
     return data;
   };
 }
