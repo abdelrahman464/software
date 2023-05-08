@@ -1,4 +1,6 @@
+const ApiError = require("../utils/apiError");
 const Database = require("../config/database");
+const Search = require("../models/Search");
 
 class JobManager {
   constructor() {
@@ -116,6 +118,29 @@ class JobManager {
     const sql = `UPDATE jobs SET num_applicant = ? WHERE id = ?`;
     const args = [plusNum_applicantByOne, id];
     const data = await this.db.query(sql, args);
+    return data;
+  };
+
+  searchInJobs = async (keyword, userId, next) => {
+    await this.db.connect();
+    //1-search by the keyword and return jobs that contain in his qualification this keyword
+    if (keyword.trim().length === 0) {
+      return next(new ApiError(`There Is No Word To Search`, 404));
+    }
+    const LikeExpression = [`%${keyword}%`];
+    const sql = `SELECT jobs.id,jobs.position,jobs.requirements,jobs.salary,
+    jobs.description as job_description,
+    qualifications.description as qualification_description
+    FROM qualifications
+    JOIN jobs
+    ON jobs.id = qualifications.job_id
+    WHERE qualifications.description LIKE ?`;
+    const args = [LikeExpression];
+    const data = await this.db.query(sql, args);
+    //2- save this word in search history
+    const search = new Search();
+    await search.saveKeyWord(keyword, userId);
+    //3- return the jobs containing this keyword in his qualification
     return data;
   };
 }

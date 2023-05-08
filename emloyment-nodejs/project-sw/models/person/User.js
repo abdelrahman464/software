@@ -2,6 +2,7 @@ const Database = require("../../config/database");
 const generateToken = require("../../utils/generateToken");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const ApiError = require("../../utils/apiError");
 
 class User {
   constructor() {
@@ -13,12 +14,15 @@ class User {
     });
   }
 
-  login = async (user, res) => {
+  login = async (user, res, next) => {
     const { email, password } = user;
     await this.db.connect();
     const sql = "SELECT * FROM users WHERE email = ?";
     const args = [email];
     const data = await this.db.query(sql, args);
+    if (data.length === 0) {
+      return next(new ApiError(`Invalid email or password`, 401));
+    }
     bcrypt.compare(password, data[0].password, (err, result) => {
       if (err) {
         console.error(err);
@@ -31,7 +35,7 @@ class User {
       }
       // Passwords do not match
       if (!result) {
-        return res.status(401).send("Invalid email or password");
+        return next(new ApiError(`Invalid email or password`, 401));
       }
     });
   };

@@ -16,10 +16,10 @@ exports.signup = asyncHandler(async (req, res) => {
 // @desc    login
 // @route   POST  /api/v1/users/auth/login
 // @access  public
-exports.login = asyncHandler(async (req, res) => {
+exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   const user = new User();
-  return await user.login({ email, password }, res);
+  return await user.login({ email, password }, res, next);
 });
 
 exports.protect = asyncHandler(async (req, res, next) => {
