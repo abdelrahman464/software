@@ -34,10 +34,10 @@ class Admin extends User {
 
   updateUser = async (id, user) => {
     await this.db.connect();
-    const { name, email, password, role, phone, updated_at } = user;
+    const { role, updated_at } = user;
     const sql =
-      "UPDATE users SET name = ?, email = ?, password = ? , phone = ? ,role = ?, updated_at = ? WHERE id = ?";
-    const args = [name, email, password, phone, role, updated_at, id];
+      "UPDATE users SET role = ?, updated_at = ? WHERE id = ?";
+    const args = [role, updated_at, id];
     const data = this.db.query(sql, args);
     return data;
   };

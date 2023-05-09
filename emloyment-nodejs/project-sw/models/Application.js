@@ -29,7 +29,7 @@ class ApplicationManager {
     FROM applications 
     JOIN users 
     on applications.user_id = users.id`;
-    const data = this.db.query(sql);
+    const data = await this.db.query(sql);
     return data;
   };
 
@@ -41,7 +41,7 @@ class ApplicationManager {
     on applications.user_id = users.id 
     WHERE applications.id = ?`;
     const args = [id];
-    const data = this.db.query(sql, args);
+    const data = await this.db.query(sql, args);
     return data;
   };
 
@@ -51,6 +51,7 @@ class ApplicationManager {
     const sql = `UPDATE applications SET attachment = ? ,updated_at = ? WHERE  id = ?`;
     const args = [attachment, updated_at, id];
     const data = this.db.query(sql, args);
+    //CLOSE 
     return data;
   };
 
@@ -70,6 +71,13 @@ class ApplicationManager {
     return data;
   };
 
+
+
+
+
+
+
+
   acceptApplication = async (id, res, next) => {
     await this.db.connect();
     const updated_at = new Date();
@@ -83,17 +91,13 @@ class ApplicationManager {
         new ApiError(`There Is No Application With This id ${id}`, 404)
       );
     }
-    //2-get column (job_id) from applications table
-    const applicantion = await this.getApplication(id);
-    const jobIdFromApplication = applicantion[0].job_id;
-    //3- get coulmn (num_applicant) from job table
+    // 2-get num_applicant and job.id 
     const job = new Job();
-    const jobData = await job.getJob(jobIdFromApplication);
-    const num_applicant = jobData[0].num_applicant;
-    //4-Increamnet coulmn (num apllicant) from job table by one
+    const job_data=await job.getJobInfoByApplicationId(id);
+    // 3-Increamnet coulmn (num apllicant) from job table by one
     const UpdatedJop = await job.IncreamentNumApplicantByOne(
-      jobIdFromApplication,
-      num_applicant
+      job_data[0].id,
+      job_data[0].num_applicant
     );
     if (UpdatedJop.affectedRows === 0) {
       return next(new ApiError(`There Is No Job With This id ${id}`, 404));

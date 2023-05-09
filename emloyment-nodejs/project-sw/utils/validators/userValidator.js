@@ -78,18 +78,12 @@ exports.updateUserValidator = [
       return true;
     }),
   check("password")
-    .notEmpty()
-    .withMessage("password required")
+    .optional()
     .isLength({ min: 8 })
     .withMessage("password must be at least 8 characters")
     .isLength({ max: 32 })
     .withMessage("password must be at least 8 characters")
-    .custom((password, { req }) => {
-      if (password !== req.body.passwordConfirm) {
-        throw new Error("password does not match");
-      }
-      return true;
-    }),
+    ,
 
   check("role").optional(),
 

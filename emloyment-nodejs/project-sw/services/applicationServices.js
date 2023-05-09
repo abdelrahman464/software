@@ -75,8 +75,8 @@ exports.updateApplication = asyncHandler(async (req, res, next) => {
 // @route   DELETE /api/v1/applications/:id
 // @access  Private/protected  (applicant)
 exports.deleteApplication = asyncHandler(async (req, res, next) => {
-  const application = new Application();
   const { id } = req.params;
+  const application = new Application();
   const data = await application.deleteApplication(id);
   if (data.affectedRows === 0) {
     return next(new ApiError(`No Application For this id ${id}`, 404));

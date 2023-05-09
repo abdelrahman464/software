@@ -60,17 +60,13 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 exports.updateUser = asyncHandler(async (req, res, next) => {
   const admin = new Admin();
   const id = req.params.id;
-  const { name, email, password, phone, role } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const { role } = req.body;
   const updated_at = new Date();
   // update a new user
   const data = await admin.updateUser(id, {
-    name: name,
-    email: email,
-    password: hashedPassword,
-    phone: phone,
+    
     role: role,
-    updated_at: updated_at,
+    updated_at: updated_at
   });
   if (data.affectedRows === 0) {
     return next(new ApiError(`No document For this id ${id}`, 404));

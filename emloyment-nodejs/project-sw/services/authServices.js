@@ -1,5 +1,6 @@
 const Applicant = require("../models/person/Applicant");
 const User = require("../models/person/User");
+const applicant = require("../models/person/Applicant");
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
 //@desc signup
@@ -19,6 +20,7 @@ exports.signup = asyncHandler(async (req, res) => {
 exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   const user = new User();
+  // const user = new applicant();
   return await user.login({ email, password }, res, next);
 });
 

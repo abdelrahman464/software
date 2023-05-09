@@ -134,15 +134,31 @@ class JobManager {
     FROM qualifications
     JOIN jobs
     ON jobs.id = qualifications.job_id
-    WHERE qualifications.description LIKE ?`;
+    WHERE qualifications.description LIKE ? 
+    AND
+    jobs.maxCandidateNumber > jobs.num_applicant`;
     const args = [LikeExpression];
     const data = await this.db.query(sql, args);
+
     //2- save this word in search history
     const search = new Search();
     await search.saveKeyWord(keyword, userId);
-    //3- return the jobs containing this keyword in his qualification
+
+    //3- return the jobs containing this keyword in it's qualification
     return data;
   };
+  getJobInfoByApplicationId = async (application_id) => {
+    await this.db.connect();
+    const sql = ` SELECT jobs.num_applicant,jobs.id FROM jobs
+    JOIN applications 
+    on jobs.id = applications.job_id
+    where applications.id = ?
+  `;
+    const args = [application_id];
+    const data = await this.db.query(sql, args);
+    return data;
+  };
+
 }
 
 module.exports = JobManager;
